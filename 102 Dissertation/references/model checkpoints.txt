@@ -1,9 +1,0 @@
-1. Did the reseracher start with a simple replication of the varaiables being tested?
-2. What are the variables at work in the model and how do they affect each other?
-3. In attempting to measure the social phenomenon, did the reseracher unintentionally
-incoporate variables into the model?
-4. What real world variables were not included and why?
-5. Are the results of the model similar to the results reported in previous studies?
-
-Trust Thoery: A socio cognitive and computational model
-Cristaino Castelfranchi and Rino Falcone
