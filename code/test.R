@@ -117,8 +117,20 @@ df3 <- data.frame(school = rep(1:3, each = 4), class = rep(9:10, 6),
 
 stack(df3)
 
+# A = matrix[ 1 2; 2 4 ]
+# v = matrix[ 2 4 ]
+# B = bsxfun(@rdivide, A, v)
 
 
-A = matrix[ 1 2; 2 4 ]
-v = matrix[ 2 4 ]
-B = bsxfun(@rdivide, A, v)
+require(reshape2)
+rownames(temp3)<-
+temp3$id <- rownames(temp3)
+melt(temp3)
+
+
+
+
+
+
+
+
