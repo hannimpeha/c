@@ -99,8 +99,8 @@ to setup-common-variables
     set partnered? false
     set partner nobody
     setxy random-xcor random-ycor
-    set trustp 1
-    set psmratio 0.1
+    set trustp 2
+    set psmratio 1.5
   ]
   setup-history-lists ;;initialize PARTNER-HISTORY list in all turtles
 end
@@ -312,9 +312,31 @@ end
 ;calculating trust psm
 to update-trustp
   if partner != nobody [
-    set partner-defected? [defect-now?] of partner
-    ifelse partner-defected? [ set trustp trustp - psmratio  ][ set trustp trustp + psmratio]
-    set partnerstore [who] of partner
+    ifelse [strategy] of self = "defect" and (([strategy] of partner = "random" and(defect-now? = false)) or [strategy] of partner = "cooperate")[
+     hardcondition-DC
+    ][
+    ifelse [strategy] of self = "cooperate" and (([strategy] of partner = "random" and defect-now? = false) or (member? [strategy] of partner ["tit-for-tat" "unforgiving" "unknown"]))[
+      softcondition-CC
+    ][
+    set trustp trustp - psmratio ]]]
+end
+
+
+to hardcondition-DC
+if high-discounting [
+ifelse [strategy] of self = "defect" and (([strategy] of partner = "random" and(defect-now? = false)) or [strategy] of partner = "cooperate")[
+    set trustp trustp + psmratio
+  ][
+    set trustp trustp - psmratio
+  ]]
+end
+
+to softcondition-CC
+ifelse ([strategy] of self = "defect" and (([strategy] of partner = "random" and(defect-now? = false)) or [strategy] of partner = "cooperate")) or
+       ([strategy] of self = "cooperate" and (([strategy] of partner = "random" and defect-now? = false) or (member? [strategy] of partner ["tit-for-tat" "unforgiving" "unknown"])))[
+    set trustp trustp + psmratio
+  ][
+    set trustp trustp - psmratio
   ]
 end
 
@@ -587,9 +609,9 @@ PLOT
 365
 590
 581
-Total Trust
+Average Trust
 Iterations
-Tot Trust
+Ave Trust
 0.0
 10.0
 0.0
@@ -598,12 +620,12 @@ true
 true
 "" ""
 PENS
-"random" 1.0 0 -955883 true "" "plot random-trust"
-"cooperate" 1.0 0 -2064490 true "" "plot cooperate-trust"
-"defect" 1.0 0 -6917194 true "" "plot defect-trust"
-"tit-for-tat" 1.0 0 -13791810 true "" "plot tit-for-tat-trust"
-"unforgiving" 1.0 0 -4079321 true "" "plot unforgiving-trust"
-"unknown" 1.0 0 -8732573 true "" "plot unknown-trust"
+"random" 1.0 0 -955883 true "" "if num-random-games > 0 [plot random-trust / (num-random-games)]"
+"cooperate" 1.0 0 -2064490 true "" "if num-cooperate-games > 0 [plot cooperate-trust / num-cooperate-games]"
+"defect" 1.0 0 -6917194 true "" "if num-defect-games > 0 [plot defect-trust / (num-defect-games)]"
+"tit-for-tat" 1.0 0 -13791810 true "" "if num-tit-for-tat-games > 0 [plot tit-for-tat-trust / (num-tit-for-tat-games)]"
+"unforgiving" 1.0 0 -4079321 true "" "if num-unforgiving-games > 0 [plot unforgiving-trust / (num-unforgiving-games)]"
+"unknown" 1.0 0 -8732573 true "" "if num-unknown-games > 0 [plot unknown-trust / (num-unknown-games)]"
 
 TEXTBOX
 140
@@ -627,10 +649,10 @@ sum[trustp] of turtles / (sum [score] of turtles + sum [trustp] of turtles)
 13
 
 MONITOR
-604
-367
-682
-412
+893
+10
+971
+55
 1st place
 calc-grade 0
 17
@@ -638,10 +660,10 @@ calc-grade 0
 11
 
 MONITOR
-604
-412
-682
-457
+893
+55
+971
+100
 2nd place
 calc-grade 1
 17
@@ -649,10 +671,10 @@ calc-grade 1
 11
 
 MONITOR
-604
-456
-682
-501
+893
+99
+971
+144
 3rd place
 calc-grade 2
 17
@@ -660,10 +682,10 @@ calc-grade 2
 11
 
 MONITOR
-683
-367
-760
-412
+972
+10
+1049
+55
 4th place
 calc-grade 3
 17
@@ -671,10 +693,10 @@ calc-grade 3
 11
 
 MONITOR
-683
-411
-760
-456
+972
+54
+1049
+99
 5th place
 calc-grade 4
 17
@@ -682,15 +704,49 @@ calc-grade 4
 11
 
 MONITOR
-683
-456
-760
-501
+972
+99
+1049
+144
 6th place
 calc-grade 5
 17
 1
 11
+
+SWITCH
+897
+157
+1055
+190
+high-discounting
+high-discounting
+1
+1
+-1000
+
+PLOT
+608
+365
+888
+579
+Sum Score
+Iterations
+Sum Score
+0.0
+10.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
+"default" 1.0 0 -955883 true "" "plot random-score + random-trust"
+"cooperate" 1.0 0 -2064490 true "" "plot cooperate-score + cooperate-trust"
+"defect" 1.0 0 -6917194 true "" "plot defect-score + defect-trust"
+"tit-for-tat" 1.0 0 -13791810 true "" "plot tit-for-tat-score + tit-for-tat-trust"
+"unforgiving" 1.0 0 -4079321 true "" "plot tit-for-tat-score + tit-for-tat-trust"
+"unknown" 1.0 0 -10899396 true "" "plot unknown-score + unknown-trust"
 
 @#$#@#$#@
 ## WHAT IS IT?
