@@ -17,17 +17,10 @@ NLCommand("setup")
 cl<-makeCluster(3)
 registerDoParallel(cl)
 nrun<-200
-nrandom<-10
-ncooperate<-10
-ndefect<-10
-ntitfortat<-10
-nunforgiving<-10
-nunknown<-10
-nturtle<-sum(nrandom,ncooperate,ndefect,ntitfortat,nunforgiving,nunknown) 
 
 
 temp1<-list()
-temp2<-list(c(rep(1,nturtle)))
+temp2<-list(c(rep(1,60)))
 
 
 ##########################

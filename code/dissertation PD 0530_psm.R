@@ -3,7 +3,7 @@
 #install.packages("RNetLogo", repos="http://R-Forge.R-project.org")
 library(RNetLogo)
 library(reshape2)
-#library(doParallel)
+library(doParallel)
 library(foreach)
 library(pastecs)
 
@@ -17,15 +17,8 @@ NLLoadModel(paste(nl.path,model.path,sep=""))
 
 rm(list=ls())
 NLCommand("setup")
-nrun<-2000
-nrandom<-10
-ncooperate<-10
-ndefect<-10
-ntitfortat<-10
-nunforgiving<-10
-nunknown<-10
-nturtle<-sum(nrandom,ncooperate,ndefect,ntitfortat,nunforgiving,nunknown) 
-
+nrun<-700
+nturtle<-60
 
 
 temp3<-list()
@@ -34,8 +27,8 @@ temp7<-c()
 temp8<-matrix(, nrow = 1, ncol = 1)
 
 
-#cl<-makeCluster(3)
-#registerDoParallel(cl)
+cl<-makeCluster(3)
+registerDoParallel(cl)
 
 ##########################
 ###calculating psmratio###
@@ -63,11 +56,9 @@ simvw<-function(nturtle, temp4){
   temp4<-cbind(temp4, as.data.frame(temp3[[2]]))
   
   
+  psmratio<-clusterExport(cl=cl, "simvw" ,envir=environment())
   
-   if(i >= 600 ){
-     
-     temp4<-as.matrix(temp4)
-     psmratio<-simvw(nturtle, temp4)
+   if(i >= 2 ){
      psmratio<-as.data.frame(psmratio)
      NLSetAgentSet("turtles", psmratio)
  }

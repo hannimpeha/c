@@ -99,8 +99,8 @@ to setup-common-variables
     set partnered? false
     set partner nobody
     setxy random-xcor random-ycor
-    set trustp 1
-    set psmratio 0.1
+    set trustp 10
+    set psmratio 1
   ]
   setup-history-lists ;;initialize PARTNER-HISTORY list in all turtles
 end
