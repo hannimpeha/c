@@ -11,7 +11,7 @@ library(pastecs)
 nl.path <- "C:/Program Files/NetLogo 6.0.1/app"
 nl.jarname <- "netlogo-6.0.1.jar"
 NLStart(nl.path, nl.jarname=nl.jarname)
-model.path <- "/models/dissertation_psm.nlogo" 
+model.path <- "/models/dissertation_psm(2).nlogo" 
 NLLoadModel(paste(nl.path,model.path,sep=""))
 
 
@@ -40,7 +40,7 @@ temp8<-matrix(, nrow = 1, ncol = 1)
 ##########################
 ###calculating psmratio###
 ##########################
-
+browser()
 simvw<-function(nturtle, temp4){
   for(j in 1:nturtle){
     temp5<-as.numeric(temp4[j,])
@@ -49,7 +49,7 @@ simvw<-function(nturtle, temp4){
   }
   
   for(k in 1:nturtle){
-    pmsratio <- sqrt((temp7 - (sum(temp7) - temp7) / (length(temp7)-1))^2)
+    pmsratio <- 1 - sqrt((temp7 - (sum(temp7) - temp7) / (length(temp7)-1))^2)
   }
 }
 
@@ -74,3 +74,4 @@ simvw<-function(nturtle, temp4){
  } 
 
 NLQuit()
+

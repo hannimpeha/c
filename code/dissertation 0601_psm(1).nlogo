@@ -99,8 +99,8 @@ to setup-common-variables
     set partnered? false
     set partner nobody
     setxy random-xcor random-ycor
-    set trustp 1
-    set psmratio 0.1
+    set trustp 2
+    set psmratio 1.5
   ]
   setup-history-lists ;;initialize PARTNER-HISTORY list in all turtles
 end
@@ -587,9 +587,9 @@ PLOT
 365
 590
 581
-Total Trust
+Average Trust
 Iterations
-Tot Trust
+Ave Trust
 0.0
 10.0
 0.0
@@ -598,12 +598,12 @@ true
 true
 "" ""
 PENS
-"random" 1.0 0 -955883 true "" "plot random-trust"
-"cooperate" 1.0 0 -2064490 true "" "plot cooperate-trust"
-"defect" 1.0 0 -6917194 true "" "plot defect-trust"
-"tit-for-tat" 1.0 0 -13791810 true "" "plot tit-for-tat-trust"
-"unforgiving" 1.0 0 -4079321 true "" "plot unforgiving-trust"
-"unknown" 1.0 0 -8732573 true "" "plot unknown-trust"
+"random" 1.0 0 -955883 true "" "if num-random-games > 0 [plot random-trust / (num-random-games)]"
+"cooperate" 1.0 0 -2064490 true "" "if num-cooperate-games > 0 [plot cooperate-trust / num-cooperate-games]"
+"defect" 1.0 0 -6917194 true "" "if num-defect-games > 0 [plot defect-trust / (num-defect-games)]"
+"tit-for-tat" 1.0 0 -13791810 true "" "if num-tit-for-tat-games > 0 [plot tit-for-tat-trust / (num-tit-for-tat-games)]"
+"unforgiving" 1.0 0 -4079321 true "" "if num-unforgiving-games > 0 [plot unforgiving-trust / (num-unforgiving-games)]"
+"unknown" 1.0 0 -8732573 true "" "if num-unknown-games > 0 [plot unknown-trust / (num-unknown-games)]"
 
 TEXTBOX
 140

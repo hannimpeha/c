@@ -9,7 +9,7 @@ library(foreach)
 nl.path <- "C:/Program Files/NetLogo 6.0.1/app"
 nl.jarname <- "netlogo-6.0.1.jar"
 NLStart(nl.path, nl.jarname=nl.jarname)
-model.path <- "/models/dissertation_tvm.nlogo" 
+model.path <- "/models/dissertation_tvm(2).nlogo" 
 NLLoadModel(paste(nl.path,model.path,sep=""))
 
 rm(list=ls())

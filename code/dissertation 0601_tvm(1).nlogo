@@ -23,7 +23,6 @@ globals [
   unforgiving-score
   unknown-score
 
-  ;;total trust of all turtles playing each strategy
   random-trust
   cooperate-trust
   defect-trust
@@ -43,11 +42,9 @@ turtles-own [
   partner           ;;WHO of my partner (nobody if not partnered)
   partner-history   ;;a list containing information about past interactions
                     ;;with other turtles (indexed by WHO values)
-  trustp
-  psmratio
-  rank-psmratio
-  partnerstore      ;;a list containing information about past partners
-  partnerstorage
+  trustt
+  tvmratio
+  rank-tvmratio
 ]
 
 
@@ -57,7 +54,7 @@ turtles-own [
 
 to setup
   clear-all
-  ask patches [ set pcolor gray - 3]
+  ask patches [ set pcolor gray - 3 ]
   store-initial-turtle-counts ;;record the number of turtles created for each strategy
   setup-turtles ;;setup the turtles and distribute them randomly
   reset-ticks
@@ -82,6 +79,7 @@ to setup-turtles
   setup-common-variables ;;sets the variables that all turtles share
 end
 
+
 ;;create the appropriate number of turtles playing each strategy
 to make-turtles
   create-turtles num-random [ set strategy "random" set color orange ]
@@ -92,19 +90,18 @@ to make-turtles
   create-turtles num-unknown [set strategy "unknown" set color green ]
 end
 
-;;set the variables that all turtles share
+;;set the variables that all turtles shasre
 to setup-common-variables
   ask turtles [
     set score 0
     set partnered? false
     set partner nobody
     setxy random-xcor random-ycor
-    set trustp 1
-    set psmratio 0.1
+    set trustt 2
+    set tvmratio 1.5
   ]
   setup-history-lists ;;initialize PARTNER-HISTORY list in all turtles
 end
-
 
 ;;initialize PARTNER-HISTORY list in all turtles
 to setup-history-lists
@@ -120,7 +117,6 @@ to setup-history-lists
 end
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;Runtime Procedures;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
@@ -128,9 +124,10 @@ end
 to go
   clear-last-round
   ask turtles [ partner-up ]                        ;;have turtles try to find a partner
-    let partnered-turtles turtles with [ partnered? ]
+  let partnered-turtles turtles with [ partnered? ]
   ask partnered-turtles [ select-action ]           ;;all partnered turtles select action
   ask partnered-turtles [ play-a-round ]
+
   do-scoring
   do-trust
   tick
@@ -170,8 +167,6 @@ to partner-up ;;turtle procedure
   ]
 end
 
-
-
 ;;choose an action based upon the strategy being played
 to select-action ;;turtle procedure
   if strategy = "random" [ act-randomly ]
@@ -192,7 +187,8 @@ end
 to get-payoff
   set partner-defected? [defect-now?] of partner
   ifelse partner-defected? [
-    update-trustp
+
+    update-trustt
     rnetlogo
 
     ifelse defect-now? [
@@ -201,6 +197,10 @@ to get-payoff
       set score (score + 0) set label 0
     ]
   ] [
+
+    update-trustt
+    rnetlogo
+
     ifelse defect-now? [
       set score (score + 5) set label 5
     ] [
@@ -208,7 +208,6 @@ to get-payoff
     ]
   ]
 end
-
 
 
 ;;update PARTNER-HISTORY based upon the strategy being played
@@ -308,21 +307,18 @@ to unknown-history-update
     (replace-item ([who] of partner) partner-history partner-defected?)
 end
 
-
-;calculating trust psm
-to update-trustp
+;calculating trust tvm
+to update-trustt
   if partner != nobody [
     set partner-defected? [defect-now?] of partner
-    ifelse partner-defected? [ set trustp trustp - psmratio  ][ set trustp trustp + psmratio]
-    set partnerstore [who] of partner
-  ]
+    ifelse partner-defected? [ set trustt trustt - tvmratio  ][ set trustt trustt + tvmratio]
+    ]
 end
 
-
 to rnetlogo
-  if (ticks = 0)[set psmratio one-of range (count turtles)]
-  set rank-psmratio sort-on [psmratio] turtles
-  foreach rank-psmratio [ ? -> ask ? [update-trustp]]
+;  if (ticks = 0)[set tvmratio tvmratio]
+  set rank-tvmratio sort-on [tvmratio] turtles
+  foreach rank-tvmratio [ ? -> ask ? [update-trustt]]
 end
 
 
@@ -351,7 +347,7 @@ to-report calc-score [strategy-type num-with-strategy]
 end
 
 to do-trust
-  set random-trust (calc-trust "random" )
+  set random-trust (calc-trust "random")
   set cooperate-trust  (calc-trust "cooperate")
   set defect-trust  (calc-trust "defect")
   set tit-for-tat-trust  (calc-trust "tit-for-tat")
@@ -361,11 +357,12 @@ end
 
 to-report calc-trust [strategy-type]
   ifelse ticks > 0 [
-    report (sum [ trustp ] of (turtles with [ strategy = strategy-type ]))
+    report (sum [ trustt ] of (turtles with [ strategy = strategy-type ]))
   ] [
     report 0
   ]
 end
+
 
 to-report calc-grade [grade]
   ifelse ticks > 0 [
@@ -380,12 +377,22 @@ to-report calc-grade [grade]
     report 0
   ]
 end
+
+
+;to-report first-grade
+;  ifelse ticks > 0 [
+;    set list-of-trust map calc-trust ["random" "cooperate" "defect" "tit-for-tat" "unforgiving" "unknown"]
+;    report [strategy] of turtles with [calc-trust [strategy] of turtles = max list-of-trust ]
+;  ] [
+;    report 0
+;  ]
+;end
 @#$#@#$#@
 GRAPHICS-WINDOW
-288
-10
-884
-346
+291
+22
+887
+358
 -1
 -1
 21.8
@@ -426,10 +433,10 @@ NIL
 1
 
 PLOT
-10
-366
-294
-583
+19
+374
+298
+591
 Average Payoff
 Iterations
 Ave Payoff
@@ -513,7 +520,7 @@ HORIZONTAL
 SLIDER
 133
 61
-259
+260
 94
 n-tit-for-tat
 n-tit-for-tat
@@ -528,13 +535,13 @@ HORIZONTAL
 SLIDER
 133
 94
-259
+260
 127
 n-unforgiving
 n-unforgiving
 0
 20
-10.0
+17.0
 1
 1
 NIL
@@ -543,7 +550,7 @@ HORIZONTAL
 SLIDER
 133
 127
-259
+260
 160
 n-unknown
 n-unknown
@@ -558,8 +565,8 @@ HORIZONTAL
 TEXTBOX
 12
 175
-248
-315
+139
+318
 PAYOFF:\n             Partner    \nTurtle      C       D\n-----------------\n    C        3      0  \n-----------------\n    D        5      1\n-----------------\nC:Cooperate, D:Defect
 11
 0.0
@@ -583,13 +590,13 @@ NIL
 0
 
 PLOT
-308
-365
-590
-581
-Total Trust
+311
+374
+595
+591
+Average Trust
 Iterations
-Tot Trust
+Ave Trust
 0.0
 10.0
 0.0
@@ -598,50 +605,50 @@ true
 true
 "" ""
 PENS
-"random" 1.0 0 -955883 true "" "plot random-trust"
-"cooperate" 1.0 0 -2064490 true "" "plot cooperate-trust"
-"defect" 1.0 0 -6917194 true "" "plot defect-trust"
-"tit-for-tat" 1.0 0 -13791810 true "" "plot tit-for-tat-trust"
-"unforgiving" 1.0 0 -4079321 true "" "plot unforgiving-trust"
-"unknown" 1.0 0 -8732573 true "" "plot unknown-trust"
+"random" 1.0 0 -955883 true "" "if num-random-games > 2 [plot random-trust / (num-random-games)]"
+"cooperate" 1.0 0 -2064490 true "" "if num-cooperate-games > 2 [plot cooperate-trust / (num-cooperate-games)]"
+"defect" 1.0 0 -6917194 true "" "if num-defect-games > 2 [plot defect-trust / (num-defect-games)]"
+"tit-for-tat" 1.0 0 -13791810 true "" "if num-tit-for-tat-games > 2 [plot tit-for-tat-trust / (num-tit-for-tat-games)]"
+"unforgiving" 1.0 0 -4079321 true "" "if num-unforgiving-games > 2 [plot unforgiving-trust / (num-unforgiving-games)]"
+"unknown" 1.0 0 -10899396 true "" "if num-unknown-games > 2 [plot unknown-trust / (num-unknown-games)]"
 
 TEXTBOX
-140
-168
-290
-324
-TRUST:\nIf Partner Cooperative:\n(+) Credibility Measure\nIf Partner Defected:\n(-) Credibility Measure\n\nPSM Metric:\nSim()/sum(Sim())\nSim():Similarity between \n         inside and outside 
+135
+171
+285
+314
+TRUST:\nIf Partner Cooperative :\n(+) Credibility Measure\nIf  Partner Defected : \n(-) Credibility Measure\n\nTVM Metric:\nT(p(u,i))/sum(T(p(u,i)))\np(u,i) : feedback from \n          partner\n\n
 12
 0.0
 1
 
 MONITOR
-12
-306
-118
-359
+23
+307
+121
+360
 trust portion
-sum[trustp] of turtles / (sum [score] of turtles + sum [trustp] of turtles)
+sum [trustt] of turtles / (sum [score] of turtles + sum [trustt] of turtles)
 2
 1
 13
 
 MONITOR
-604
-367
-682
-412
+612
+376
+689
+421
 1st place
 calc-grade 0
-17
+2
 1
 11
 
 MONITOR
-604
-412
-682
-457
+689
+376
+766
+421
 2nd place
 calc-grade 1
 17
@@ -649,10 +656,10 @@ calc-grade 1
 11
 
 MONITOR
-604
-456
-682
-501
+766
+376
+843
+421
 3rd place
 calc-grade 2
 17
@@ -660,10 +667,10 @@ calc-grade 2
 11
 
 MONITOR
-683
-367
-760
-412
+612
+421
+689
+466
 4th place
 calc-grade 3
 17
@@ -671,10 +678,10 @@ calc-grade 3
 11
 
 MONITOR
-683
-411
-760
-456
+689
+421
+766
+466
 5th place
 calc-grade 4
 17
@@ -682,15 +689,129 @@ calc-grade 4
 11
 
 MONITOR
-683
-456
-760
-501
+766
+421
+843
+466
 6th place
 calc-grade 5
 17
 1
 11
+
+PLOT
+904
+21
+1184
+141
+random player
+Iterations
+vs
+0.0
+10.0
+0.0
+10.0
+true
+true
+"" ""
+PENS
+"payoff" 1.0 0 -13210332 true "" "if num-random-games > 0 [plot random-score / (num-random-games)]"
+"trust" 1.0 0 -4757638 true "" "if num-random-games > 0 [plot random-trust / (num-random-games)]"
+
+PLOT
+904
+140
+1184
+260
+cooperate player
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"payoff" 1.0 0 -13210332 true "" "if num-cooperate-games > 0 [plot cooperate-score / (num-cooperate-games)]"
+"trust" 1.0 0 -4757638 true "" "if num-cooperate-games > 0 [plot cooperate-trust / (num-cooperate-games)]"
+
+PLOT
+904
+259
+1183
+379
+defect player
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"payoff" 1.0 0 -13210332 true "" "if num-defect-games > 0 [plot defect-score / (num-defect-games)]"
+"trust" 1.0 0 -4757638 true "" "if num-defect-games > 0 [plot defect-trust / (num-defect-games)]"
+
+PLOT
+1184
+21
+1463
+141
+tit-for-tat player
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"payoff" 1.0 0 -13210332 true "" "if num-defect-games > 0 [plot defect-score / (num-defect-games)]"
+"trust" 1.0 0 -4757638 true "" "if num-defect-games > 0 [plot defect-trust / (num-defect-games)]"
+
+PLOT
+1185
+141
+1464
+261
+unforgiving player
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"payoff" 1.0 0 -13210332 true "" "if num-unforgiving-games > 0 [plot unforgiving-score / (num-unforgiving-games)]"
+"trust" 1.0 0 -4757638 true "" "if num-unforgiving-games > 0 [plot unforgiving-trust / (num-unforgiving-games)]"
+
+PLOT
+1183
+260
+1465
+380
+unknown player
+NIL
+NIL
+0.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"payoff" 1.0 0 -13210332 true "" "if num-unknown-games > 0 [plot unknown-score / (num-unknown-games)]"
+"trust" 1.0 0 -4757638 true "" "if num-unknown-games > 0 [plot unknown-trust / (num-unknown-games)]"
 
 @#$#@#$#@
 ## WHAT IS IT?
