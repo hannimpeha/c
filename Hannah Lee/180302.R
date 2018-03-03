@@ -1,0 +1,6 @@
+set.seed(724985)
+rm(list=ls())
+setwd("C:/Users/Hannah Lee/Desktop/")
+data <- read.csv("data1.csv", header = FALSE)
+library(lmtest)
+waldtest(data[,1]~data[,2])
